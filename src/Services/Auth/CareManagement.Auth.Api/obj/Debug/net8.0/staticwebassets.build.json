@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "BzpByG7GSBU86ms5oL+v15nzrzmneV0lEK/kJhmxW50=",
+  "Source": "CareManagement.Auth.Api",
+  "BasePath": "_content/CareManagement.Auth.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

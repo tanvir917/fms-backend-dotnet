@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/CareManagement.Staff.Api.props" />
+</Project>

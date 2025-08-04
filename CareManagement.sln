@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{85FA767B-545B-4D2F-A304-63F3E70D1492}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{3DA6ABD6-2519-4F2E-A814-C737E49C9070}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CareManagement.Shared", "src\Shared\CareManagement.Shared\CareManagement.Shared.csproj", "{5739C2B5-BD30-42F9-9351-E9AE0DBAD438}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{FAA6CD8C-CBF5-4567-BC7F-32D38C2E9F28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CareManagement.Gateway", "src\Gateway\CareManagement.Gateway\CareManagement.Gateway.csproj", "{F68C2E80-0D3B-40B0-9261-A05DB7597879}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{E5228671-C807-4050-AC45-11E72FDB73D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth", "Auth", "{BE0D49F0-2205-4046-B450-022EDA9CA405}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CareManagement.Auth.Api", "src\Services\Auth\CareManagement.Auth.Api\CareManagement.Auth.Api.csproj", "{1D91EACA-D997-4D49-A263-FE3E7775B270}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Staff", "Staff", "{CF39A98A-DF60-47B4-8785-693B4FDDC7D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CareManagement.Staff.Api", "src\Services\Staff\CareManagement.Staff.Api\CareManagement.Staff.Api.csproj", "{CD26ADC4-D487-493B-BA8E-5CC4B728C0C3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5739C2B5-BD30-42F9-9351-E9AE0DBAD438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5739C2B5-BD30-42F9-9351-E9AE0DBAD438}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5739C2B5-BD30-42F9-9351-E9AE0DBAD438}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5739C2B5-BD30-42F9-9351-E9AE0DBAD438}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F68C2E80-0D3B-40B0-9261-A05DB7597879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F68C2E80-0D3B-40B0-9261-A05DB7597879}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F68C2E80-0D3B-40B0-9261-A05DB7597879}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F68C2E80-0D3B-40B0-9261-A05DB7597879}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D91EACA-D997-4D49-A263-FE3E7775B270}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D91EACA-D997-4D49-A263-FE3E7775B270}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D91EACA-D997-4D49-A263-FE3E7775B270}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D91EACA-D997-4D49-A263-FE3E7775B270}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD26ADC4-D487-493B-BA8E-5CC4B728C0C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD26ADC4-D487-493B-BA8E-5CC4B728C0C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD26ADC4-D487-493B-BA8E-5CC4B728C0C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD26ADC4-D487-493B-BA8E-5CC4B728C0C3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3DA6ABD6-2519-4F2E-A814-C737E49C9070} = {85FA767B-545B-4D2F-A304-63F3E70D1492}
+		{5739C2B5-BD30-42F9-9351-E9AE0DBAD438} = {3DA6ABD6-2519-4F2E-A814-C737E49C9070}
+		{FAA6CD8C-CBF5-4567-BC7F-32D38C2E9F28} = {85FA767B-545B-4D2F-A304-63F3E70D1492}
+		{F68C2E80-0D3B-40B0-9261-A05DB7597879} = {FAA6CD8C-CBF5-4567-BC7F-32D38C2E9F28}
+		{E5228671-C807-4050-AC45-11E72FDB73D7} = {85FA767B-545B-4D2F-A304-63F3E70D1492}
+		{BE0D49F0-2205-4046-B450-022EDA9CA405} = {E5228671-C807-4050-AC45-11E72FDB73D7}
+		{1D91EACA-D997-4D49-A263-FE3E7775B270} = {BE0D49F0-2205-4046-B450-022EDA9CA405}
+		{CF39A98A-DF60-47B4-8785-693B4FDDC7D6} = {E5228671-C807-4050-AC45-11E72FDB73D7}
+		{CD26ADC4-D487-493B-BA8E-5CC4B728C0C3} = {CF39A98A-DF60-47B4-8785-693B4FDDC7D6}
+	EndGlobalSection
+EndGlobal

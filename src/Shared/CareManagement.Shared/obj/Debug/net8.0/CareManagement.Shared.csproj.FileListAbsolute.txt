@@ -1,0 +1,14 @@
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/CareManagement.Shared.csproj.AssemblyReference.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/CareManagement.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/CareManagement.Shared.AssemblyInfoInputs.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/CareManagement.Shared.AssemblyInfo.cs
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/CareManagement.Shared.csproj.CoreCompileInputs.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/bin/Debug/net8.0/CareManagement.Shared.deps.json
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/bin/Debug/net8.0/CareManagement.Shared.runtimeconfig.json
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/bin/Debug/net8.0/CareManagement.Shared.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/bin/Debug/net8.0/CareManagement.Shared.pdb
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/CareManagement.Shared.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/refint/CareManagement.Shared.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/CareManagement.Shared.pdb
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/CareManagement.Shared.genruntimeconfig.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Shared/CareManagement.Shared/obj/Debug/net8.0/ref/CareManagement.Shared.dll

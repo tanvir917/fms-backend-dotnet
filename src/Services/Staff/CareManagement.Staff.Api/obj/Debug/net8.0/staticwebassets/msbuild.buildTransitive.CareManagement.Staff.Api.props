@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/CareManagement.Staff.Api.props" />
+</Project>

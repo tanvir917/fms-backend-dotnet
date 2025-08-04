@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Infrastructure Services
+  postgres-dotnet:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: CareManagement
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dotnet_data:/var/lib/postgresql/data
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    networks:
+      - caremanagement-dotnet
+
+  rabbitmq-dotnet:
+    image: rabbitmq:3.12-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbitmq_dotnet_data:/var/lib/rabbitmq
+    networks:
+      - caremanagement-dotnet
+
+  # API Gateway
+  gateway:
+    build:
+      context: .
+      dockerfile: src/Gateway/CareManagement.Gateway/Dockerfile
+    ports:
+      - "5003:80"  # Changed from 5000 to 5003 to avoid macOS AirPlay conflict
+    depends_on:
+      - auth-api
+      - staff-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    networks:
+      - caremanagement-dotnet
+
+  # Microservices
+  auth-api:
+    build:
+      context: .
+      dockerfile: src/Services/Auth/CareManagement.Auth.Api/Dockerfile
+    ports:
+      - "5001:80"
+    depends_on:
+      - postgres-dotnet
+      - rabbitmq-dotnet
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres-dotnet;Database=CareManagement_Auth;Username=postgres;Password=postgres;Port=5432
+      - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq-dotnet:5672/
+    networks:
+      - caremanagement-dotnet
+
+  staff-api:
+    build:
+      context: .
+      dockerfile: src/Services/Staff/CareManagement.Staff.Api/Dockerfile
+    ports:
+      - "5002:80"
+    depends_on:
+      - postgres-dotnet
+      - rabbitmq-dotnet
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres-dotnet;Database=CareManagement_Staff;Username=postgres;Password=postgres;Port=5432
+      - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq-dotnet:5672/
+    networks:
+      - caremanagement-dotnet
+
+volumes:
+  postgres_dotnet_data:
+  rabbitmq_dotnet_data:
+
+networks:
+  caremanagement-dotnet:
+    driver: bridge

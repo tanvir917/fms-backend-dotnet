@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "UKMN3cj4Bwk12lndMUEWS1d8hzXtkg9uKYCK42d2fyk=",
+  "Source": "CareManagement.Staff.Api",
+  "BasePath": "_content/CareManagement.Staff.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
