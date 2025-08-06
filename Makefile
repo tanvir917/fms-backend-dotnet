@@ -80,7 +80,7 @@ prod-test: up-detached
 	@echo "  API Gateway: http://localhost:5003"
 	@echo "  Auth API: http://localhost:5001"
 	@echo "  Staff API: http://localhost:5002"
-	@echo "  RabbitMQ Management: http://localhost:15673"
+	@echo "  RabbitMQ Management: http://localhost:15672"
 
 # Quick restart
 restart: down up-detached
