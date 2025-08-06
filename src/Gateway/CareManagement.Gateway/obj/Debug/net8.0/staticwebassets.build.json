@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "HbuL3hAxnF1VQUGfAmmlcUNp8v55a8Q0Q7KNNmb2dN8=",
+  "Source": "CareManagement.Gateway",
+  "BasePath": "_content/CareManagement.Gateway",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

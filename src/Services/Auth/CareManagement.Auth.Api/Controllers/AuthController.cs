@@ -255,4 +255,122 @@ public class AuthController : ControllerBase
             return StatusCode(500, ApiResponse<List<UserDto>>.ErrorResult("An error occurred"));
         }
     }
+
+    [HttpGet("users/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<UserDto>>> GetUser(int id)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return NotFound(ApiResponse<UserDto>.ErrorResult("User not found"));
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var userDto = new UserDto
+            {
+                Id = user.Id,
+                Username = user.UserName!,
+                Email = user.Email!,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Roles = roles.ToList()
+            };
+
+            return Ok(ApiResponse<UserDto>.SuccessResult(userDto));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting user");
+            return StatusCode(500, ApiResponse<UserDto>.ErrorResult("An error occurred"));
+        }
+    }
+
+    [HttpPut("users/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<UserDto>>> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return NotFound(ApiResponse<UserDto>.ErrorResult("User not found"));
+            }
+
+            // Update user properties
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.Email = request.Email;
+            user.UserName = request.Username;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(ApiResponse<UserDto>.ErrorResult("Update failed", errors));
+            }
+
+            // Update roles if provided
+            if (!string.IsNullOrEmpty(request.Role))
+            {
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, request.Role);
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var userDto = new UserDto
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Roles = roles.ToList()
+            };
+
+            return Ok(ApiResponse<UserDto>.SuccessResult(userDto, "User updated successfully"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating user");
+            return StatusCode(500, ApiResponse<UserDto>.ErrorResult("An error occurred"));
+        }
+    }
+
+    [HttpDelete("users/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<object>>> DeleteUser(int id)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return NotFound(ApiResponse<object>.ErrorResult("User not found"));
+            }
+
+            // Soft delete - set IsActive to false
+            user.IsActive = false;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(ApiResponse<object>.ErrorResult("Delete failed", errors));
+            }
+
+            return Ok(ApiResponse<object>.SuccessResult(new { }, "User deactivated successfully"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting user");
+            return StatusCode(500, ApiResponse<object>.ErrorResult("An error occurred"));
+        }
+    }
 }

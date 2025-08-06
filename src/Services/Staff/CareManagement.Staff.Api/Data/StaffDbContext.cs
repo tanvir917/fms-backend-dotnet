@@ -13,12 +13,25 @@ public class StaffMember : BaseEntity
     public string PhoneNumber { get; set; } = string.Empty;
     public string Position { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
+    public string EmploymentType { get; set; } = string.Empty;
     public decimal HourlyRate { get; set; }
     public DateTime DateOfBirth { get; set; }
-    public string Address { get; set; } = string.Empty;
+    public string AddressLine1 { get; set; } = string.Empty;
+    public string? AddressLine2 { get; set; }
+    public string City { get; set; } = string.Empty;
+    public string State { get; set; } = string.Empty;
+    public string PostalCode { get; set; } = string.Empty;
+    public string? Qualifications { get; set; }
+    public string? Certifications { get; set; }
+    public int? PreferredHoursPerWeek { get; set; }
+    public bool AvailableWeekdays { get; set; } = true;
+    public bool AvailableWeekends { get; set; } = false;
+    public bool AvailableNights { get; set; } = false;
     public string EmergencyContactName { get; set; } = string.Empty;
     public string EmergencyContactPhone { get; set; } = string.Empty;
-    public DateTime HireDate { get; set; }
+    public string EmergencyContactRelationship { get; set; } = string.Empty;
+    public DateTime StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public bool IsActive { get; set; } = true;
 
     // Navigation properties
@@ -31,10 +44,10 @@ public class StaffLeaveRequest : BaseEntity
     public int StaffId { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public string LeaveType { get; set; } = string.Empty;
+    public string LeaveType { get; set; } = string.Empty; // annual, sick, personal, maternity, emergency, unpaid
     public string Reason { get; set; } = string.Empty;
-    public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected
-    public string? ApproverComments { get; set; }
+    public string Status { get; set; } = "pending"; // pending, approved, rejected, cancelled
+    public string? Comments { get; set; }
     public int? ApprovedBy { get; set; }
     public DateTime? ApprovedAt { get; set; }
 
@@ -45,10 +58,11 @@ public class StaffLeaveRequest : BaseEntity
 public class StaffAvailability : BaseEntity
 {
     public int StaffId { get; set; }
-    public string DayOfWeek { get; set; } = string.Empty; // Monday, Tuesday, etc.
+    public string DayOfWeek { get; set; } = string.Empty; // monday, tuesday, wednesday, thursday, friday, saturday, sunday
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public bool IsAvailable { get; set; } = true;
+    public string? Notes { get; set; }
 
     // Navigation properties
     public StaffMember Staff { get; set; } = null!;
@@ -89,6 +103,9 @@ public class StaffDbContext : BaseDbContext
                   .WithMany(s => s.Availabilities)
                   .HasForeignKey(e => e.StaffId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            // Ensure unique combination of staff, day, and start time
+            entity.HasIndex(e => new { e.StaffId, e.DayOfWeek, e.StartTime }).IsUnique();
         });
     }
 }
