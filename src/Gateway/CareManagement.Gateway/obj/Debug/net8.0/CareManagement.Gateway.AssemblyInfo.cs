@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CareManagement.Gateway")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dcdb7c62ba66602617c8f3e701d52f909192c93c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c57814d4d213597202b862f4c1995bb3fe9be4a9")]
 [assembly: System.Reflection.AssemblyProductAttribute("CareManagement.Gateway")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CareManagement.Gateway")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
