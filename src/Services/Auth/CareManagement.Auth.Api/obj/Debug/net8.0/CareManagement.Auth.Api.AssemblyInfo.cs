@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CareManagement.Auth.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c57814d4d213597202b862f4c1995bb3fe9be4a9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7eebc55e284584e01675ed5a90040a8ca8db63ec")]
 [assembly: System.Reflection.AssemblyProductAttribute("CareManagement.Auth.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CareManagement.Auth.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "04n7k85bGL/1jSwkjZFp0IG7L6OKYy/EHAyr+KqzXm4=",
+  "Source": "CareManagement.Client.Api",
+  "BasePath": "_content/CareManagement.Client.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

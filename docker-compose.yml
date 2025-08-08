@@ -39,6 +39,7 @@ services:
     depends_on:
       - auth-api
       - staff-api
+      - client-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -80,9 +81,29 @@ services:
     networks:
       - caremanagement-dotnet
 
+  client-api:
+    build:
+      context: .
+      dockerfile: src/Services/Client/CareManagement.Client.Api/Dockerfile
+    ports:
+      - "5004:80"
+    depends_on:
+      - postgres-dotnet
+      - rabbitmq-dotnet
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres-dotnet;Database=CareManagement_Client;Username=postgres;Password=postgres;Port=5432
+      - ConnectionStrings__RabbitMQ=amqp://guest:guest@rabbitmq-dotnet:5672/
+    volumes:
+      - client_uploads:/app/uploads
+    networks:
+      - caremanagement-dotnet
+
 volumes:
   postgres_dotnet_data:
   rabbitmq_dotnet_data:
+  client_uploads:
 
 networks:
   caremanagement-dotnet:
