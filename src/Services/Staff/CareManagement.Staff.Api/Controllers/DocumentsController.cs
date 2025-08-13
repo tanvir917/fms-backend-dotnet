@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using CareManagement.Staff.Api.Services;
+using CareManagement.Staff.Api.Services.Interfaces;
 using CareManagement.Staff.Api.DTOs;
 using CareManagement.Shared.DTOs;
 using System.Security.Claims;

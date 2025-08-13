@@ -1,6 +1,6 @@
 using CareManagement.Staff.Api.DTOs;
 
-namespace CareManagement.Staff.Api.Services;
+namespace CareManagement.Staff.Api.Services.Interfaces;
 
 public interface IStaffDocumentService
 {

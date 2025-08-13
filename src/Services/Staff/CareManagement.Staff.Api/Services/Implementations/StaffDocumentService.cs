@@ -2,8 +2,9 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using CareManagement.Staff.Api.Data;
 using CareManagement.Staff.Api.DTOs;
+using CareManagement.Staff.Api.Services.Interfaces;
 
-namespace CareManagement.Staff.Api.Services;
+namespace CareManagement.Staff.Api.Services.Implementations;
 
 public class StaffDocumentService : IStaffDocumentService
 {

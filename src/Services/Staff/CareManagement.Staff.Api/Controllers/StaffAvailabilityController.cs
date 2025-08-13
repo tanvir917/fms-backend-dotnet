@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CareManagement.Staff.Api.Data;
 using CareManagement.Staff.Api.DTOs;
+using CareManagement.Staff.Api.Services.Interfaces;
 using CareManagement.Shared.DTOs;
 using System.Security.Claims;
 
@@ -13,12 +14,12 @@ namespace CareManagement.Staff.Api.Controllers;
 [Authorize]
 public class StaffAvailabilityController : ControllerBase
 {
-    private readonly StaffDbContext _context;
+    private readonly IStaffAvailabilityService _staffAvailabilityService;
     private readonly ILogger<StaffAvailabilityController> _logger;
 
-    public StaffAvailabilityController(StaffDbContext context, ILogger<StaffAvailabilityController> logger)
+    public StaffAvailabilityController(IStaffAvailabilityService staffAvailabilityService, ILogger<StaffAvailabilityController> logger)
     {
-        _context = context;
+        _staffAvailabilityService = staffAvailabilityService;
         _logger = logger;
     }
 
@@ -28,29 +29,12 @@ public class StaffAvailabilityController : ControllerBase
     {
         try
         {
-            var staff = await _context.StaffMembers.FindAsync(staffId);
-            if (staff == null)
-            {
-                return NotFound(ApiResponse<List<StaffAvailabilityDto>>.ErrorResult("Staff member not found"));
-            }
-
-            var availabilities = await _context.StaffAvailabilities
-                .Where(a => a.StaffId == staffId)
-                .Select(a => new StaffAvailabilityDto
-                {
-                    Id = a.Id,
-                    StaffId = a.StaffId,
-                    DayOfWeek = a.DayOfWeek,
-                    StartTime = a.StartTime,
-                    EndTime = a.EndTime,
-                    IsAvailable = a.IsAvailable,
-                    Notes = a.Notes,
-                    CreatedAt = a.CreatedAt,
-                    UpdatedAt = a.UpdatedAt
-                })
-                .ToListAsync();
-
+            var availabilities = await _staffAvailabilityService.GetStaffAvailabilityAsync(staffId);
             return Ok(ApiResponse<List<StaffAvailabilityDto>>.SuccessResult(availabilities));
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ApiResponse<List<StaffAvailabilityDto>>.ErrorResult(ex.Message));
         }
         catch (Exception ex)
         {
@@ -67,40 +51,14 @@ public class StaffAvailabilityController : ControllerBase
     {
         try
         {
-            var staff = await _context.StaffMembers.FindAsync(staffId);
-            if (staff == null)
-            {
-                return NotFound(ApiResponse<StaffAvailabilityDto>.ErrorResult("Staff member not found"));
-            }
-
-            var availability = new StaffAvailability
-            {
-                StaffId = staffId,
-                DayOfWeek = request.DayOfWeek,
-                StartTime = request.StartTime,
-                EndTime = request.EndTime,
-                IsAvailable = request.IsAvailable,
-                Notes = request.Notes
-            };
-
-            _context.StaffAvailabilities.Add(availability);
-            await _context.SaveChangesAsync();
-
-            var availabilityDto = new StaffAvailabilityDto
-            {
-                Id = availability.Id,
-                StaffId = availability.StaffId,
-                DayOfWeek = availability.DayOfWeek,
-                StartTime = availability.StartTime,
-                EndTime = availability.EndTime,
-                IsAvailable = availability.IsAvailable,
-                Notes = availability.Notes,
-                CreatedAt = availability.CreatedAt,
-                UpdatedAt = availability.UpdatedAt
-            };
+            var availabilityDto = await _staffAvailabilityService.CreateStaffAvailabilityAsync(staffId, request);
 
             return CreatedAtAction(nameof(GetStaffAvailability), new { staffId = staffId },
                 ApiResponse<StaffAvailabilityDto>.SuccessResult(availabilityDto, "Availability created successfully"));
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ApiResponse<StaffAvailabilityDto>.ErrorResult(ex.Message));
         }
         catch (Exception ex)
         {
@@ -118,34 +76,12 @@ public class StaffAvailabilityController : ControllerBase
     {
         try
         {
-            var availability = await _context.StaffAvailabilities
-                .FirstOrDefaultAsync(a => a.Id == id && a.StaffId == staffId);
+            var availabilityDto = await _staffAvailabilityService.UpdateStaffAvailabilityAsync(staffId, id, request);
 
-            if (availability == null)
+            if (availabilityDto == null)
             {
                 return NotFound(ApiResponse<StaffAvailabilityDto>.ErrorResult("Availability not found"));
             }
-
-            availability.DayOfWeek = request.DayOfWeek;
-            availability.StartTime = request.StartTime;
-            availability.EndTime = request.EndTime;
-            availability.IsAvailable = request.IsAvailable;
-            availability.Notes = request.Notes;
-
-            await _context.SaveChangesAsync();
-
-            var availabilityDto = new StaffAvailabilityDto
-            {
-                Id = availability.Id,
-                StaffId = availability.StaffId,
-                DayOfWeek = availability.DayOfWeek,
-                StartTime = availability.StartTime,
-                EndTime = availability.EndTime,
-                IsAvailable = availability.IsAvailable,
-                Notes = availability.Notes,
-                CreatedAt = availability.CreatedAt,
-                UpdatedAt = availability.UpdatedAt
-            };
 
             return Ok(ApiResponse<StaffAvailabilityDto>.SuccessResult(availabilityDto, "Availability updated successfully"));
         }
@@ -162,16 +98,12 @@ public class StaffAvailabilityController : ControllerBase
     {
         try
         {
-            var availability = await _context.StaffAvailabilities
-                .FirstOrDefaultAsync(a => a.Id == id && a.StaffId == staffId);
+            var result = await _staffAvailabilityService.DeleteStaffAvailabilityAsync(staffId, id);
 
-            if (availability == null)
+            if (!result)
             {
                 return NotFound(ApiResponse<object>.ErrorResult("Availability not found"));
             }
-
-            _context.StaffAvailabilities.Remove(availability);
-            await _context.SaveChangesAsync();
 
             return Ok(ApiResponse<object>.SuccessResult(new { }, "Availability deleted successfully"));
         }

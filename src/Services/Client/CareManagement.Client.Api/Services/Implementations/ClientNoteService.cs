@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using CareManagement.Client.Api.Data;
 using CareManagement.Client.Api.DTOs;
 using CareManagement.Client.Api.Models;
+using CareManagement.Client.Api.Services.Interfaces;
 
-namespace CareManagement.Client.Api.Services;
+namespace CareManagement.Client.Api.Services.Implementations;
 
 public class ClientNoteService : IClientNoteService
 {

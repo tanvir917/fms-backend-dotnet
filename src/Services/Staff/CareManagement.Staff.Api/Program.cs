@@ -73,8 +73,11 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddSingleton<IMessageBus>(provider =>
     new RabbitMqService(builder.Configuration.GetConnectionString("RabbitMQ")!));
 
-// Add document service
-builder.Services.AddScoped<CareManagement.Staff.Api.Services.IStaffDocumentService, CareManagement.Staff.Api.Services.StaffDocumentService>();
+// Add service layer
+builder.Services.AddScoped<CareManagement.Staff.Api.Services.Interfaces.IStaffService, CareManagement.Staff.Api.Services.Implementations.StaffService>();
+builder.Services.AddScoped<CareManagement.Staff.Api.Services.Interfaces.IStaffAvailabilityService, CareManagement.Staff.Api.Services.Implementations.StaffAvailabilityService>();
+builder.Services.AddScoped<CareManagement.Staff.Api.Services.Interfaces.IStaffLeaveRequestService, CareManagement.Staff.Api.Services.Implementations.StaffLeaveRequestService>();
+builder.Services.AddScoped<CareManagement.Staff.Api.Services.Interfaces.IStaffDocumentService, CareManagement.Staff.Api.Services.Implementations.StaffDocumentService>();
 
 var app = builder.Build();
 

@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CareManagement.Staff.Api.Data;
 using CareManagement.Staff.Api.DTOs;
+using CareManagement.Staff.Api.Services.Interfaces;
 using CareManagement.Shared.DTOs;
 using System.Security.Claims;
 
@@ -13,12 +12,12 @@ namespace CareManagement.Staff.Api.Controllers;
 [Authorize]
 public class StaffLeaveRequestController : ControllerBase
 {
-    private readonly StaffDbContext _context;
+    private readonly IStaffLeaveRequestService _staffLeaveRequestService;
     private readonly ILogger<StaffLeaveRequestController> _logger;
 
-    public StaffLeaveRequestController(StaffDbContext context, ILogger<StaffLeaveRequestController> logger)
+    public StaffLeaveRequestController(IStaffLeaveRequestService staffLeaveRequestService, ILogger<StaffLeaveRequestController> logger)
     {
-        _context = context;
+        _staffLeaveRequestService = staffLeaveRequestService;
         _logger = logger;
     }
 
@@ -28,32 +27,12 @@ public class StaffLeaveRequestController : ControllerBase
     {
         try
         {
-            var staff = await _context.StaffMembers.FindAsync(staffId);
-            if (staff == null)
-            {
-                return NotFound(ApiResponse<List<StaffLeaveRequestDto>>.ErrorResult("Staff member not found"));
-            }
-
-            var leaveRequests = await _context.StaffLeaveRequests
-                .Where(lr => lr.StaffId == staffId)
-                .Select(lr => new StaffLeaveRequestDto
-                {
-                    Id = lr.Id,
-                    StaffId = lr.StaffId,
-                    StartDate = lr.StartDate,
-                    EndDate = lr.EndDate,
-                    LeaveType = lr.LeaveType,
-                    Reason = lr.Reason,
-                    Status = lr.Status,
-                    Comments = lr.Comments,
-                    ApprovedBy = lr.ApprovedBy,
-                    ApprovedAt = lr.ApprovedAt,
-                    CreatedAt = lr.CreatedAt,
-                    UpdatedAt = lr.UpdatedAt
-                })
-                .ToListAsync();
-
+            var leaveRequests = await _staffLeaveRequestService.GetLeaveRequestsByStaffIdAsync(staffId);
             return Ok(ApiResponse<List<StaffLeaveRequestDto>>.SuccessResult(leaveRequests));
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ApiResponse<List<StaffLeaveRequestDto>>.ErrorResult(ex.Message));
         }
         catch (Exception ex)
         {
@@ -70,43 +49,14 @@ public class StaffLeaveRequestController : ControllerBase
     {
         try
         {
-            var staff = await _context.StaffMembers.FindAsync(staffId);
-            if (staff == null)
-            {
-                return NotFound(ApiResponse<StaffLeaveRequestDto>.ErrorResult("Staff member not found"));
-            }
-
-            var leaveRequest = new StaffLeaveRequest
-            {
-                StaffId = staffId,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                LeaveType = request.LeaveType,
-                Reason = request.Reason,
-                Status = "pending"
-            };
-
-            _context.StaffLeaveRequests.Add(leaveRequest);
-            await _context.SaveChangesAsync();
-
-            var leaveRequestDto = new StaffLeaveRequestDto
-            {
-                Id = leaveRequest.Id,
-                StaffId = leaveRequest.StaffId,
-                StartDate = leaveRequest.StartDate,
-                EndDate = leaveRequest.EndDate,
-                LeaveType = leaveRequest.LeaveType,
-                Reason = leaveRequest.Reason,
-                Status = leaveRequest.Status,
-                Comments = leaveRequest.Comments,
-                ApprovedBy = leaveRequest.ApprovedBy,
-                ApprovedAt = leaveRequest.ApprovedAt,
-                CreatedAt = leaveRequest.CreatedAt,
-                UpdatedAt = leaveRequest.UpdatedAt
-            };
+            var leaveRequestDto = await _staffLeaveRequestService.CreateLeaveRequestAsync(staffId, request);
 
             return CreatedAtAction(nameof(GetStaffLeaveRequests), new { staffId = staffId },
                 ApiResponse<StaffLeaveRequestDto>.SuccessResult(leaveRequestDto, "Leave request created successfully"));
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ApiResponse<StaffLeaveRequestDto>.ErrorResult(ex.Message));
         }
         catch (Exception ex)
         {
@@ -124,36 +74,12 @@ public class StaffLeaveRequestController : ControllerBase
     {
         try
         {
-            var leaveRequest = await _context.StaffLeaveRequests
-                .FirstOrDefaultAsync(lr => lr.Id == id && lr.StaffId == staffId);
+            var leaveRequestDto = await _staffLeaveRequestService.UpdateLeaveRequestAsync(id, request);
 
-            if (leaveRequest == null)
+            if (leaveRequestDto == null)
             {
                 return NotFound(ApiResponse<StaffLeaveRequestDto>.ErrorResult("Leave request not found"));
             }
-
-            leaveRequest.StartDate = request.StartDate;
-            leaveRequest.EndDate = request.EndDate;
-            leaveRequest.LeaveType = request.LeaveType;
-            leaveRequest.Reason = request.Reason;
-
-            await _context.SaveChangesAsync();
-
-            var leaveRequestDto = new StaffLeaveRequestDto
-            {
-                Id = leaveRequest.Id,
-                StaffId = leaveRequest.StaffId,
-                StartDate = leaveRequest.StartDate,
-                EndDate = leaveRequest.EndDate,
-                LeaveType = leaveRequest.LeaveType,
-                Reason = leaveRequest.Reason,
-                Status = leaveRequest.Status,
-                Comments = leaveRequest.Comments,
-                ApprovedBy = leaveRequest.ApprovedBy,
-                ApprovedAt = leaveRequest.ApprovedAt,
-                CreatedAt = leaveRequest.CreatedAt,
-                UpdatedAt = leaveRequest.UpdatedAt
-            };
 
             return Ok(ApiResponse<StaffLeaveRequestDto>.SuccessResult(leaveRequestDto, "Leave request updated successfully"));
         }
@@ -174,14 +100,6 @@ public class StaffLeaveRequestController : ControllerBase
     {
         try
         {
-            var leaveRequest = await _context.StaffLeaveRequests
-                .FirstOrDefaultAsync(lr => lr.Id == id && lr.StaffId == staffId);
-
-            if (leaveRequest == null)
-            {
-                return NotFound(ApiResponse<StaffLeaveRequestDto>.ErrorResult("Leave request not found"));
-            }
-
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int? userId = null;
             if (int.TryParse(userIdString, out int parsedUserId))
@@ -189,28 +107,12 @@ public class StaffLeaveRequestController : ControllerBase
                 userId = parsedUserId;
             }
 
-            leaveRequest.Status = "approved";
-            leaveRequest.Comments = request.Comments;
-            leaveRequest.ApprovedBy = userId;
-            leaveRequest.ApprovedAt = DateTime.UtcNow;
+            var leaveRequestDto = await _staffLeaveRequestService.ApproveLeaveRequestAsync(id, userId ?? 0, request.Comments);
 
-            await _context.SaveChangesAsync();
-
-            var leaveRequestDto = new StaffLeaveRequestDto
+            if (leaveRequestDto == null)
             {
-                Id = leaveRequest.Id,
-                StaffId = leaveRequest.StaffId,
-                StartDate = leaveRequest.StartDate,
-                EndDate = leaveRequest.EndDate,
-                LeaveType = leaveRequest.LeaveType,
-                Reason = leaveRequest.Reason,
-                Status = leaveRequest.Status,
-                Comments = leaveRequest.Comments,
-                ApprovedBy = leaveRequest.ApprovedBy,
-                ApprovedAt = leaveRequest.ApprovedAt,
-                CreatedAt = leaveRequest.CreatedAt,
-                UpdatedAt = leaveRequest.UpdatedAt
-            };
+                return NotFound(ApiResponse<StaffLeaveRequestDto>.ErrorResult("Leave request not found"));
+            }
 
             return Ok(ApiResponse<StaffLeaveRequestDto>.SuccessResult(leaveRequestDto, "Leave request approved successfully"));
         }
@@ -231,14 +133,6 @@ public class StaffLeaveRequestController : ControllerBase
     {
         try
         {
-            var leaveRequest = await _context.StaffLeaveRequests
-                .FirstOrDefaultAsync(lr => lr.Id == id && lr.StaffId == staffId);
-
-            if (leaveRequest == null)
-            {
-                return NotFound(ApiResponse<StaffLeaveRequestDto>.ErrorResult("Leave request not found"));
-            }
-
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int? userId = null;
             if (int.TryParse(userIdString, out int parsedUserId))
@@ -246,28 +140,12 @@ public class StaffLeaveRequestController : ControllerBase
                 userId = parsedUserId;
             }
 
-            leaveRequest.Status = "rejected";
-            leaveRequest.Comments = request.Comments;
-            leaveRequest.ApprovedBy = userId;
-            leaveRequest.ApprovedAt = DateTime.UtcNow;
+            var leaveRequestDto = await _staffLeaveRequestService.RejectLeaveRequestAsync(id, userId ?? 0, request.Comments);
 
-            await _context.SaveChangesAsync();
-
-            var leaveRequestDto = new StaffLeaveRequestDto
+            if (leaveRequestDto == null)
             {
-                Id = leaveRequest.Id,
-                StaffId = leaveRequest.StaffId,
-                StartDate = leaveRequest.StartDate,
-                EndDate = leaveRequest.EndDate,
-                LeaveType = leaveRequest.LeaveType,
-                Reason = leaveRequest.Reason,
-                Status = leaveRequest.Status,
-                Comments = leaveRequest.Comments,
-                ApprovedBy = leaveRequest.ApprovedBy,
-                ApprovedAt = leaveRequest.ApprovedAt,
-                CreatedAt = leaveRequest.CreatedAt,
-                UpdatedAt = leaveRequest.UpdatedAt
-            };
+                return NotFound(ApiResponse<StaffLeaveRequestDto>.ErrorResult("Leave request not found"));
+            }
 
             return Ok(ApiResponse<StaffLeaveRequestDto>.SuccessResult(leaveRequestDto, "Leave request rejected successfully"));
         }
@@ -284,16 +162,12 @@ public class StaffLeaveRequestController : ControllerBase
     {
         try
         {
-            var leaveRequest = await _context.StaffLeaveRequests
-                .FirstOrDefaultAsync(lr => lr.Id == id && lr.StaffId == staffId);
+            var result = await _staffLeaveRequestService.DeleteLeaveRequestAsync(id);
 
-            if (leaveRequest == null)
+            if (!result)
             {
                 return NotFound(ApiResponse<object>.ErrorResult("Leave request not found"));
             }
-
-            _context.StaffLeaveRequests.Remove(leaveRequest);
-            await _context.SaveChangesAsync();
 
             return Ok(ApiResponse<object>.SuccessResult(new { }, "Leave request deleted successfully"));
         }

@@ -6,7 +6,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CareManagement.Client.Api.Data;
-using CareManagement.Client.Api.Services;
+using CareManagement.Client.Api.Services.Interfaces;
+using CareManagement.Client.Api.Services.Implementations;
 using CareManagement.Client.Api.Mapping;
 using CareManagement.Shared.Messaging;
 
