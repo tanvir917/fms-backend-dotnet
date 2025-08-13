@@ -1,13 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CareManagement.Auth.Api.Data;
 using CareManagement.Auth.Api.DTOs;
-using CareManagement.Auth.Api.Services;
+using CareManagement.Auth.Api.Services.Interfaces;
 using CareManagement.Shared.DTOs;
-using CareManagement.Shared.Messaging;
-using CareManagement.Shared.Events;
 using System.Security.Claims;
 
 namespace CareManagement.Auth.Api.Controllers;
@@ -16,276 +11,150 @@ namespace CareManagement.Auth.Api.Controllers;
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<IdentityRole<int>> _roleManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly ITokenService _tokenService;
-    private readonly IMessageBus _messageBus;
+    private readonly IAuthService _authService;
+    private readonly IUserService _userService;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
-        UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole<int>> roleManager,
-        SignInManager<ApplicationUser> signInManager,
-        ITokenService tokenService,
-        IMessageBus messageBus,
+        IAuthService authService,
+        IUserService userService,
         ILogger<AuthController> logger)
     {
-        _userManager = userManager;
-        _roleManager = roleManager;
-        _signInManager = signInManager;
-        _tokenService = tokenService;
-        _messageBus = messageBus;
+        _authService = authService;
+        _userService = userService;
         _logger = logger;
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<ApiResponse<LoginResponse>>> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         try
         {
-            var user = await _userManager.FindByNameAsync(request.Username);
-            if (user == null || !user.IsActive)
-            {
-                return BadRequest(ApiResponse<LoginResponse>.ErrorResult("Invalid credentials"));
-            }
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            if (!result.Succeeded)
-            {
-                return BadRequest(ApiResponse<LoginResponse>.ErrorResult("Invalid credentials"));
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = _tokenService.GenerateToken(user, roles);
-
-            var response = new LoginResponse
-            {
-                Token = token,
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    Username = user.UserName!,
-                    Email = user.Email!,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Roles = roles.ToList()
-                }
-            };
-
-            return Ok(ApiResponse<LoginResponse>.SuccessResult(response, "Login successful"));
+            var response = await _authService.LoginAsync(request);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during login");
-            return StatusCode(500, ApiResponse<LoginResponse>.ErrorResult("An error occurred during login"));
+            _logger.LogError(ex, "Error during login for user {Username}", request.Username);
+            return StatusCode(500, new { message = "An error occurred during login" });
         }
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<ApiResponse<UserDto>>> Register([FromBody] RegisterRequest request)
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         try
         {
-            var existingUser = await _userManager.FindByNameAsync(request.Username);
-            if (existingUser != null)
-            {
-                return BadRequest(ApiResponse<UserDto>.ErrorResult("Username already exists"));
-            }
-
-            var existingEmail = await _userManager.FindByEmailAsync(request.Email);
-            if (existingEmail != null)
-            {
-                return BadRequest(ApiResponse<UserDto>.ErrorResult("Email already exists"));
-            }
-
-            var user = new ApplicationUser
-            {
-                UserName = request.Username,
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description).ToList();
-                return BadRequest(ApiResponse<UserDto>.ErrorResult("Registration failed", errors));
-            }
-
-            // Add role
-            if (!string.IsNullOrEmpty(request.Role))
-            {
-                await _userManager.AddToRoleAsync(user, request.Role);
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var userDto = new UserDto
-            {
-                Id = user.Id,
-                Username = user.UserName,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Roles = roles.ToList()
-            };
-
-            // Publish user created event
-            await _messageBus.PublishAsync("user_created", new UserCreatedEvent
-            {
-                UserId = user.Id,
-                Email = user.Email,
-                Username = user.UserName,
-                Role = request.Role,
-                CreatedAt = user.CreatedAt
-            });
-
-            return Ok(ApiResponse<UserDto>.SuccessResult(userDto, "Registration successful"));
+            var response = await _authService.RegisterAsync(request);
+            return Ok(response);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during registration");
-            return StatusCode(500, ApiResponse<UserDto>.ErrorResult("An error occurred during registration"));
+            _logger.LogError(ex, "Error during registration for user {Username}", request.Username);
+            return StatusCode(500, new { message = "An error occurred during registration" });
         }
     }
 
     [HttpGet("profile")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse<UserDto>>> GetProfile()
+    public async Task<IActionResult> GetProfile()
     {
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return Unauthorized(new { message = "User not found" });
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound(ApiResponse<UserDto>.ErrorResult("User not found"));
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var userDto = new UserDto
-            {
-                Id = user.Id,
-                Username = user.UserName!,
-                Email = user.Email!,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Roles = roles.ToList()
-            };
-
-            return Ok(ApiResponse<UserDto>.SuccessResult(userDto));
+            var response = await _authService.GetProfileAsync(userId);
+            return Ok(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting user profile");
-            return StatusCode(500, ApiResponse<UserDto>.ErrorResult("An error occurred"));
+            _logger.LogError(ex, "Error getting profile");
+            return StatusCode(500, new { message = "An error occurred while retrieving profile" });
         }
     }
-
     [HttpPost("change-password")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse<object>>> ChangePassword([FromBody] ChangePasswordRequest request)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
     {
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return Unauthorized(new { message = "User not found" });
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound(ApiResponse<object>.ErrorResult("User not found"));
-            }
-
-            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
-            if (!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResult("Password change failed", errors));
-            }
-
-            return Ok(ApiResponse<object>.SuccessResult(new { }, "Password changed successfully"));
+            await _authService.ChangePasswordAsync(userId, request);
+            return Ok(new { message = "Password changed successfully" });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error changing password");
-            return StatusCode(500, ApiResponse<object>.ErrorResult("An error occurred"));
+            return StatusCode(500, new { message = "An error occurred while changing password" });
         }
     }
 
-    [HttpPost("users/{id}/reset-password")]
+    [HttpPost("admin/change-password/{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ApiResponse<object>>> AdminResetPassword(int id, [FromBody] AdminChangePasswordRequest request)
+    public async Task<IActionResult> AdminChangePassword(int id, [FromBody] AdminChangePasswordRequest request)
     {
         try
         {
-            var targetUser = await _userManager.FindByIdAsync(id.ToString());
-            if (targetUser == null)
+            var adminUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(adminUserId))
             {
-                return NotFound(ApiResponse<object>.ErrorResult("User not found"));
+                return Unauthorized(new { message = "Admin user not found" });
             }
 
-            // Generate a password reset token and use it to reset the password
-            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(targetUser);
-            var result = await _userManager.ResetPasswordAsync(targetUser, resetToken, request.NewPassword);
-
-            if (!result.Succeeded)
+            var result = await _authService.AdminResetPasswordAsync(id, request, adminUserId);
+            if (result)
             {
-                var errors = result.Errors.Select(e => e.Description).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResult("Password reset failed", errors));
+                return Ok(new { message = "Password changed successfully" });
             }
-
-            // Update the user's updated timestamp
-            targetUser.UpdatedAt = DateTime.UtcNow;
-            await _userManager.UpdateAsync(targetUser);
-
-            _logger.LogInformation("Admin {AdminId} reset password for user {UserId}",
-                User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id);
-
-            return Ok(ApiResponse<object>.SuccessResult(new { }, "Password reset successfully"));
+            else
+            {
+                return BadRequest(new { message = "Failed to change password" });
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error resetting password for user {UserId}", id);
-            return StatusCode(500, ApiResponse<object>.ErrorResult("An error occurred"));
+            _logger.LogError(ex, "Error changing password for user {UserId}", id);
+            return StatusCode(500, new { message = "An error occurred while changing password" });
         }
     }
-
     [HttpGet("users")]
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ApiResponse<List<UserDto>>>> GetUsers()
     {
         try
         {
-            var users = await _userManager.Users.Where(u => u.IsActive).ToListAsync();
-            var userDtos = new List<UserDto>();
-
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                userDtos.Add(new UserDto
-                {
-                    Id = user.Id,
-                    Username = user.UserName!,
-                    Email = user.Email!,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Roles = roles.ToList()
-                });
-            }
-
-            return Ok(ApiResponse<List<UserDto>>.SuccessResult(userDtos));
+            var users = await _userService.GetUsersAsync();
+            return Ok(ApiResponse<List<UserDto>>.SuccessResult(users.ToList()));
         }
         catch (Exception ex)
         {
@@ -300,24 +169,13 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
             {
                 return NotFound(ApiResponse<UserDto>.ErrorResult("User not found"));
             }
 
-            var roles = await _userManager.GetRolesAsync(user);
-            var userDto = new UserDto
-            {
-                Id = user.Id,
-                Username = user.UserName!,
-                Email = user.Email!,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Roles = roles.ToList()
-            };
-
-            return Ok(ApiResponse<UserDto>.SuccessResult(userDto));
+            return Ok(ApiResponse<UserDto>.SuccessResult(user));
         }
         catch (Exception ex)
         {
@@ -332,58 +190,12 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-            {
-                return NotFound(ApiResponse<UserDto>.ErrorResult("User not found"));
-            }
-
-            // Update user properties
-            user.FirstName = request.FirstName;
-            user.LastName = request.LastName;
-            user.Email = request.Email;
-            user.UserName = request.Username;
-            user.UpdatedAt = DateTime.UtcNow;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description).ToList();
-                return BadRequest(ApiResponse<UserDto>.ErrorResult("Update failed", errors));
-            }
-
-            // Update roles if provided
-            if (!string.IsNullOrEmpty(request.Role))
-            {
-                // Ensure the role exists
-                if (!await _roleManager.RoleExistsAsync(request.Role))
-                {
-                    _logger.LogWarning($"Role '{request.Role}' does not exist. Creating it.");
-                    var roleResult = await _roleManager.CreateAsync(new IdentityRole<int>(request.Role));
-                    if (!roleResult.Succeeded)
-                    {
-                        var roleErrors = roleResult.Errors.Select(e => e.Description).ToList();
-                        return BadRequest(ApiResponse<UserDto>.ErrorResult("Failed to create role", roleErrors));
-                    }
-                }
-
-                var currentRoles = await _userManager.GetRolesAsync(user);
-                await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                await _userManager.AddToRoleAsync(user, request.Role);
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var userDto = new UserDto
-            {
-                Id = user.Id,
-                Username = user.UserName,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Roles = roles.ToList()
-            };
-
+            var userDto = await _userService.UpdateUserAsync(id, request);
             return Ok(ApiResponse<UserDto>.SuccessResult(userDto, "User updated successfully"));
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ApiResponse<UserDto>.ErrorResult(ex.Message));
         }
         catch (Exception ex)
         {
@@ -398,24 +210,15 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
+            var result = await _userService.DeleteUserAsync(id);
+            if (result)
+            {
+                return Ok(ApiResponse<object>.SuccessResult(new { }, "User deactivated successfully"));
+            }
+            else
             {
                 return NotFound(ApiResponse<object>.ErrorResult("User not found"));
             }
-
-            // Soft delete - set IsActive to false
-            user.IsActive = false;
-            user.UpdatedAt = DateTime.UtcNow;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description).ToList();
-                return BadRequest(ApiResponse<object>.ErrorResult("Delete failed", errors));
-            }
-
-            return Ok(ApiResponse<object>.SuccessResult(new { }, "User deactivated successfully"));
         }
         catch (Exception ex)
         {

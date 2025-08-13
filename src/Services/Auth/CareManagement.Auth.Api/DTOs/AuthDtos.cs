@@ -22,6 +22,11 @@ public class LoginResponse
     public UserDto User { get; set; } = new();
 }
 
+public class RegisterResponse
+{
+    public UserDto User { get; set; } = new();
+}
+
 public class UserDto
 {
     public int Id { get; set; }

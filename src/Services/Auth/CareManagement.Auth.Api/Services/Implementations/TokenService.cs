@@ -3,13 +3,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using CareManagement.Auth.Api.Data;
+using CareManagement.Auth.Api.Services.Interfaces;
 
-namespace CareManagement.Auth.Api.Services;
-
-public interface ITokenService
-{
-    string GenerateToken(ApplicationUser user, IList<string> roles);
-}
+namespace CareManagement.Auth.Api.Services.Implementations;
 
 public class TokenService : ITokenService
 {

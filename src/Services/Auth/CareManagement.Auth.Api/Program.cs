@@ -1,5 +1,6 @@
 using CareManagement.Auth.Api.Data;
-using CareManagement.Auth.Api.Services;
+using CareManagement.Auth.Api.Services.Interfaces;
+using CareManagement.Auth.Api.Services.Implementations;
 using CareManagement.Shared.Messaging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -85,6 +86,8 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Progr
 
 // Add custom services
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IMessageBus>(provider =>
     new RabbitMqService(builder.Configuration.GetConnectionString("RabbitMQ")!));
 
