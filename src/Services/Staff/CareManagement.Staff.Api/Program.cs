@@ -73,6 +73,9 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddSingleton<IMessageBus>(provider =>
     new RabbitMqService(builder.Configuration.GetConnectionString("RabbitMQ")!));
 
+// Add document service
+builder.Services.AddScoped<CareManagement.Staff.Api.Services.IStaffDocumentService, CareManagement.Staff.Api.Services.StaffDocumentService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline

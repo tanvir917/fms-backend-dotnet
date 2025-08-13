@@ -63,6 +63,65 @@ namespace CareManagement.Staff.Api.Migrations
                     b.ToTable("StaffAvailabilities");
                 });
 
+            modelBuilder.Entity("CareManagement.Staff.Api.Data.StaffDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UploadedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("StaffDocuments");
+                });
+
             modelBuilder.Entity("CareManagement.Staff.Api.Data.StaffLeaveRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -250,6 +309,17 @@ namespace CareManagement.Staff.Api.Migrations
                     b.Navigation("Staff");
                 });
 
+            modelBuilder.Entity("CareManagement.Staff.Api.Data.StaffDocument", b =>
+                {
+                    b.HasOne("CareManagement.Staff.Api.Data.StaffMember", "Staff")
+                        .WithMany("Documents")
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("CareManagement.Staff.Api.Data.StaffLeaveRequest", b =>
                 {
                     b.HasOne("CareManagement.Staff.Api.Data.StaffMember", "Staff")
@@ -264,6 +334,8 @@ namespace CareManagement.Staff.Api.Migrations
             modelBuilder.Entity("CareManagement.Staff.Api.Data.StaffMember", b =>
                 {
                     b.Navigation("Availabilities");
+
+                    b.Navigation("Documents");
 
                     b.Navigation("LeaveRequests");
                 });

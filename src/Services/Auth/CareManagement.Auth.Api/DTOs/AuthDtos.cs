@@ -38,6 +38,11 @@ public class ChangePasswordRequest
     public string NewPassword { get; set; } = string.Empty;
 }
 
+public class AdminChangePasswordRequest
+{
+    public string NewPassword { get; set; } = string.Empty;
+}
+
 public class UpdateUserRequest
 {
     public string Username { get; set; } = string.Empty;

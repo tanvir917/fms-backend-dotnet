@@ -37,6 +37,7 @@ public class StaffMember : BaseEntity
     // Navigation properties
     public List<StaffLeaveRequest> LeaveRequests { get; set; } = new();
     public List<StaffAvailability> Availabilities { get; set; } = new();
+    public List<StaffDocument> Documents { get; set; } = new();
 }
 
 public class StaffLeaveRequest : BaseEntity
@@ -68,6 +69,36 @@ public class StaffAvailability : BaseEntity
     public StaffMember Staff { get; set; } = null!;
 }
 
+public enum StaffDocumentType
+{
+    Identity = 0,
+    WorkPermit = 1,
+    Visa = 2,
+    Nationality = 3,
+    Background = 4,
+    Medical = 5,
+    Training = 6,
+    Contract = 7,
+    Other = 8
+}
+
+public class StaffDocument : BaseEntity
+{
+    public int StaffId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public StaffDocumentType DocumentType { get; set; }
+    public string FileName { get; set; } = string.Empty;
+    public string FilePath { get; set; } = string.Empty;
+    public string MimeType { get; set; } = string.Empty;
+    public long FileSize { get; set; }
+    public DateTime UploadedAt { get; set; }
+    public int UploadedBy { get; set; }
+
+    // Navigation properties
+    public StaffMember Staff { get; set; } = null!;
+}
+
 public class StaffDbContext : BaseDbContext
 {
     public StaffDbContext(DbContextOptions<StaffDbContext> options) : base(options)
@@ -77,6 +108,7 @@ public class StaffDbContext : BaseDbContext
     public DbSet<StaffMember> StaffMembers { get; set; }
     public DbSet<StaffLeaveRequest> StaffLeaveRequests { get; set; }
     public DbSet<StaffAvailability> StaffAvailabilities { get; set; }
+    public DbSet<StaffDocument> StaffDocuments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -106,6 +138,19 @@ public class StaffDbContext : BaseDbContext
 
             // Ensure unique combination of staff, day, and start time
             entity.HasIndex(e => new { e.StaffId, e.DayOfWeek, e.StartTime }).IsUnique();
+        });
+
+        modelBuilder.Entity<StaffDocument>(entity =>
+        {
+            entity.HasOne(e => e.Staff)
+                  .WithMany(s => s.Documents)
+                  .HasForeignKey(e => e.StaffId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.MimeType).HasMaxLength(100);
         });
     }
 }

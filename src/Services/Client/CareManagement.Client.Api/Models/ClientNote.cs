@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CareManagement.Client.Api.Models;
 
@@ -47,5 +48,6 @@ public class ClientNote
 
     // Navigation properties
     [ForeignKey("ClientId")]
+    [JsonIgnore]
     public virtual Client Client { get; set; } = null!;
 }

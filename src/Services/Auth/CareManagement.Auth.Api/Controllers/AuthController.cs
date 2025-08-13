@@ -224,8 +224,46 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpGet("users")]
+    [HttpPost("users/{id}/reset-password")]
     [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<object>>> AdminResetPassword(int id, [FromBody] AdminChangePasswordRequest request)
+    {
+        try
+        {
+            var targetUser = await _userManager.FindByIdAsync(id.ToString());
+            if (targetUser == null)
+            {
+                return NotFound(ApiResponse<object>.ErrorResult("User not found"));
+            }
+
+            // Generate a password reset token and use it to reset the password
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(targetUser);
+            var result = await _userManager.ResetPasswordAsync(targetUser, resetToken, request.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(ApiResponse<object>.ErrorResult("Password reset failed", errors));
+            }
+
+            // Update the user's updated timestamp
+            targetUser.UpdatedAt = DateTime.UtcNow;
+            await _userManager.UpdateAsync(targetUser);
+
+            _logger.LogInformation("Admin {AdminId} reset password for user {UserId}",
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id);
+
+            return Ok(ApiResponse<object>.SuccessResult(new { }, "Password reset successfully"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resetting password for user {UserId}", id);
+            return StatusCode(500, ApiResponse<object>.ErrorResult("An error occurred"));
+        }
+    }
+
+    [HttpGet("users")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ApiResponse<List<UserDto>>>> GetUsers()
     {
         try
@@ -257,7 +295,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("users/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ApiResponse<UserDto>>> GetUser(int id)
     {
         try
@@ -289,7 +327,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPut("users/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ApiResponse<UserDto>>> UpdateUser(int id, [FromBody] UpdateUserRequest request)
     {
         try
@@ -317,6 +355,18 @@ public class AuthController : ControllerBase
             // Update roles if provided
             if (!string.IsNullOrEmpty(request.Role))
             {
+                // Ensure the role exists
+                if (!await _roleManager.RoleExistsAsync(request.Role))
+                {
+                    _logger.LogWarning($"Role '{request.Role}' does not exist. Creating it.");
+                    var roleResult = await _roleManager.CreateAsync(new IdentityRole<int>(request.Role));
+                    if (!roleResult.Succeeded)
+                    {
+                        var roleErrors = roleResult.Errors.Select(e => e.Description).ToList();
+                        return BadRequest(ApiResponse<UserDto>.ErrorResult("Failed to create role", roleErrors));
+                    }
+                }
+
                 var currentRoles = await _userManager.GetRolesAsync(user);
                 await _userManager.RemoveFromRolesAsync(user, currentRoles);
                 await _userManager.AddToRoleAsync(user, request.Role);

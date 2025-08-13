@@ -36,8 +36,9 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int
         // Seed roles
         builder.Entity<IdentityRole<int>>().HasData(
             new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN" },
-            new IdentityRole<int> { Id = 2, Name = "Care_Coordinator", NormalizedName = "CARE_COORDINATOR" },
-            new IdentityRole<int> { Id = 3, Name = "Carer", NormalizedName = "CARER" }
+            new IdentityRole<int> { Id = 2, Name = "Manager", NormalizedName = "MANAGER" },
+            new IdentityRole<int> { Id = 3, Name = "Care_Coordinator", NormalizedName = "CARE_COORDINATOR" },
+            new IdentityRole<int> { Id = 4, Name = "Staff", NormalizedName = "STAFF" }
         );
     }
 

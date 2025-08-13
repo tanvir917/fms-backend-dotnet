@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CareManagement.Client.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7eebc55e284584e01675ed5a90040a8ca8db63ec")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+06f1f9a42a0c87c7c8f9b8df1489c94cb4df0fb6")]
 [assembly: System.Reflection.AssemblyProductAttribute("CareManagement.Client.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CareManagement.Client.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

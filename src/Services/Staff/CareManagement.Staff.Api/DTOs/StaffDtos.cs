@@ -43,6 +43,7 @@ public class StaffDto
 
 public class CreateStaffRequest
 {
+    [Range(1, int.MaxValue, ErrorMessage = "A valid user must be selected")]
     public int UserId { get; set; }
 
     [Required(ErrorMessage = "First name is required")]
@@ -59,7 +60,7 @@ public class CreateStaffRequest
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Phone number is required")]
-    [Phone(ErrorMessage = "Invalid phone number format")]
+    [RegularExpression(@"^[\d\s\-\+\(\)\.]+$", ErrorMessage = "Invalid phone number format")]
     public string PhoneNumber { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Position is required")]
@@ -118,7 +119,7 @@ public class CreateStaffRequest
     public string EmergencyContactName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Emergency contact phone is required")]
-    [Phone(ErrorMessage = "Invalid emergency contact phone format")]
+    [RegularExpression(@"^[\d\s\-\+\(\)\.]+$", ErrorMessage = "Invalid emergency contact phone format")]
     public string EmergencyContactPhone { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Emergency contact relationship is required")]
