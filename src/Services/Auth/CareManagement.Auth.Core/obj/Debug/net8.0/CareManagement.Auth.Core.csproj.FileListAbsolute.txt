@@ -1,0 +1,12 @@
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/bin/Debug/net8.0/CareManagement.Auth.Core.deps.json
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/bin/Debug/net8.0/CareManagement.Auth.Core.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/bin/Debug/net8.0/CareManagement.Auth.Core.pdb
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/CareManagement.Auth.Core.csproj.AssemblyReference.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/CareManagement.Auth.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/CareManagement.Auth.Core.AssemblyInfoInputs.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/CareManagement.Auth.Core.AssemblyInfo.cs
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/CareManagement.Auth.Core.csproj.CoreCompileInputs.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/CareManagement.Auth.Core.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/refint/CareManagement.Auth.Core.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/CareManagement.Auth.Core.pdb
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Core/obj/Debug/net8.0/ref/CareManagement.Auth.Core.dll

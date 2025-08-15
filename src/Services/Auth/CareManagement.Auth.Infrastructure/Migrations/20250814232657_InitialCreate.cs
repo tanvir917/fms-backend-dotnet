@@ -6,10 +6,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace CareManagement.Auth.Api.Migrations
+namespace CareManagement.Auth.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateRoles : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,6 +20,10 @@ namespace CareManagement.Auth.Api.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
@@ -35,11 +39,11 @@ namespace CareManagement.Auth.Api.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FirstName = table.Column<string>(type: "text", nullable: false),
-                    LastName = table.Column<string>(type: "text", nullable: false),
+                    FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -168,14 +172,24 @@ namespace CareManagement.Auth.Api.Migrations
 
             migrationBuilder.InsertData(
                 table: "Roles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "Description", "IsActive", "Name", "NormalizedName", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { 1, null, "Admin", "ADMIN" },
-                    { 2, null, "Manager", "MANAGER" },
-                    { 3, null, "Care_Coordinator", "CARE_COORDINATOR" },
-                    { 4, null, "Staff", "STAFF" }
+                    { 1, null, new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(6840), "System administrator with full access", true, "Administrator", "ADMINISTRATOR", new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(6840) },
+                    { 2, null, new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(6840), "Care manager with management privileges", true, "Manager", "MANAGER", new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(6840) },
+                    { 3, null, new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(6840), "Care staff member", true, "Staff", "STAFF", new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(6840) },
+                    { 4, null, new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(6840), "Supervisor with oversight responsibilities", true, "Supervisor", "SUPERVISOR", new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(6840) }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "CreatedAt", "Email", "EmailConfirmed", "FirstName", "IsActive", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UpdatedAt", "UserName" },
+                values: new object[] { 1, 0, "7dc3777c-2764-47b6-b759-423c86048e6c", new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(7230), "admin@caremanagement.com", true, "System", true, "Administrator", false, null, "ADMIN@CAREMANAGEMENT.COM", "ADMIN", "AQAAAAIAAYagAAAAEISFnyM/OBCtZjqREUW7uLEFxGmqR3VxAh7EVygwZZ7yZV83i5qrc7eVmRTey8YC0g==", null, false, "50d23e8a-ee05-4549-881d-a03e429f48a0", false, new DateTime(2025, 8, 14, 23, 26, 56, 500, DateTimeKind.Utc).AddTicks(7230), "admin" });
+
+            migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { 1, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",

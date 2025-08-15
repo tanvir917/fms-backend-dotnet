@@ -1,0 +1,15 @@
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/bin/Debug/net8.0/CareManagement.Auth.Application.deps.json
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/bin/Debug/net8.0/CareManagement.Auth.Application.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/bin/Debug/net8.0/CareManagement.Auth.Application.pdb
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/bin/Debug/net8.0/CareManagement.Auth.Core.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/bin/Debug/net8.0/CareManagement.Auth.Core.pdb
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/CareManagement.Auth.Application.csproj.AssemblyReference.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/CareManagement.Auth.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/CareManagement.Auth.Application.AssemblyInfoInputs.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/CareManagement.Auth.Application.AssemblyInfo.cs
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/CareManagement.Auth.Application.csproj.CoreCompileInputs.cache
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/CareMana.57B0009B.Up2Date
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/CareManagement.Auth.Application.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/refint/CareManagement.Auth.Application.dll
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/CareManagement.Auth.Application.pdb
+/Users/tanvir/Documents/projects/cms/backend-dotnet/src/Services/Auth/CareManagement.Auth.Application/obj/Debug/net8.0/ref/CareManagement.Auth.Application.dll

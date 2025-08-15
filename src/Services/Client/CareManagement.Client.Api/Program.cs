@@ -40,8 +40,8 @@ builder.Services.AddSingleton<IMessageBus>(provider =>
     new RabbitMqService(builder.Configuration.GetConnectionString("RabbitMQ")!));
 
 // Add JWT Authentication
-var jwtSettings = builder.Configuration.GetSection("JWT");
-var secretKey = jwtSettings["Key"];
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSettings["SecretKey"];
 var issuer = jwtSettings["Issuer"];
 var audience = jwtSettings["Audience"];
 
